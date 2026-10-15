@@ -1,0 +1,15 @@
+# 数据与本地产物，不上传公开仓库
+测算数据.xlsx
+*.xlsx
+*.pdf
+output/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# 系统/编辑器
+.DS_Store
+.streamlit/secrets.toml
