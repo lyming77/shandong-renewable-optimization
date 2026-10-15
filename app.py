@@ -17,10 +17,29 @@ st.set_page_config(page_title="新能源发电能力优化影响分析", layout=
 st.title("山东电网新能源发电能力优化 —— 场站影响分析")
 
 st.caption(
-    "上传与 `测算数据.xlsx` 同结构的文件（每个场站一个 Sheet，15 分钟点，"
-    "列为 年/月/日/时刻/实时电价/出清计划/超短期预测/日前预测/实际出力/可用容量），"
+    "上传与样表同结构的文件（每个场站一个 Sheet，15 分钟点，"
+    "列为 年/月/日/时点/实时电价/出清计划/超短期预测/日前预测/实际出力/可用容量），"
     "页面录入各场站额定容量后一键测算 7 个试运行场景。"
 )
+
+
+@st.cache_data
+def _template_bytes():
+    twb = analyze.build_template_workbook()
+    buf = io.BytesIO()
+    twb.save(buf)
+    return buf.getvalue()
+
+
+# ---------------- 样表下载（始终可用） ----------------
+with st.expander("📥 下载数据采集样表", expanded=False):
+    st.caption("按样表收集数据后上传即可。样表第一个 Sheet 为填写说明，其余每个场站一个 Sheet，时间轴已按整月 15 分钟预填。")
+    st.download_button(
+        "下载 数据采集样表.xlsx",
+        data=_template_bytes(),
+        file_name="数据采集样表.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
 
 # ---------------- 数据上传 ----------------
 uploaded = st.file_uploader("上传测算数据 xlsx", type=["xlsx"])

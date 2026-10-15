@@ -141,6 +141,65 @@ def load_station(sheet, source=DATA_PATH):
     return load_sheets(source, [sheet])[sheet]
 
 
+def build_template_workbook(year=2026, month=8, stations=None):
+    """生成数据采集样表：填写说明 + 每场站一个 Sheet(表头 + 整月 15 分钟时间轴，数据列留空)。"""
+    import calendar
+    if stations is None:
+        stations = STATIONS
+    wb = openpyxl.Workbook()
+
+    # 填写说明
+    ws0 = wb.active
+    ws0.title = "填写说明"
+    notes = [
+        ["山东电网新能源发电能力优化 —— 数据采集样表"],
+        [],
+        ["每个场站填写一个 Sheet，Sheet 名 = 场站名（可自行增删场站 Sheet）。"],
+        ["数据为 15 分钟一个点；时间列(年/月/日/时点)已按整月预填，只需填后面 6 列。"],
+        [],
+        ["各列含义："],
+        ["实时电价", "该时点实时出清电价，单位 元/MWh（可为负）"],
+        ["实时出清出力计划功率（MW）", "该时点实时市场出清计划功率"],
+        ["超短期第二个点预测功率（MW）", "场站上报的超短期预测功率（优化/压减对象）"],
+        ["日前预测功率", "日前预测功率"],
+        ["实际功率（MW）（5分钟）", "场站实际发电功率"],
+        ["理论可用功率（MW）（5分钟）", "理论可用功率（可用容量）"],
+        [],
+        ["提示：光伏场站夜间无出力的时点可留空，模型会按前后值自动填充。"],
+    ]
+    for r in notes:
+        ws0.append(r)
+    ws0.column_dimensions["A"].width = 34
+    ws0.column_dimensions["B"].width = 60
+
+    header = ["年", "月", "日", "时点", "实时电价", "实时出清出力计划功率（MW）",
+              "超短期第二个点预测功率（MW）", "日前预测功率", "实际功率（MW）（5分钟）",
+              "理论可用功率（MW）（5分钟）"]
+
+    # 一天的 15 分钟时点(与测算数据一致: 00:15~24:00，共 96 点)
+    def day_times():
+        t = []
+        for h in range(24):
+            for m in (0, 15, 30, 45):
+                if h == 0 and m == 0:
+                    continue
+                t.append(f"{h:02d}:{m:02d}")
+        t.append("24:00")
+        return t
+
+    times = day_times()
+    num_days = calendar.monthrange(year, month)[1]
+
+    for sheet, (real_name, rated) in stations.items():
+        ws = wb.create_sheet(sheet)
+        ws.append(header)
+        for day in range(1, num_days + 1):
+            for t in times:
+                ws.append([year, month, day, t, None, None, None, None, None, None])
+
+    return wb
+
+
 # ---------------- 模拟引擎 ----------------
 def simulate(d, rated, sc, delay=DELAY):
     """按单一场景回放优化逻辑，返回逐周期结果与事件记录。"""
