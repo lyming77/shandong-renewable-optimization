@@ -127,7 +127,7 @@ if uploaded is not None:
             st.info(f"以下 Sheet 因容量无效被跳过：{', '.join(R['skipped'])}")
 
         st.subheader("2. 汇总对比（场站 × 场景）")
-        st.dataframe(df_sum, use_container_width=True, hide_index=True)
+        st.dataframe(df_sum, width="stretch", hide_index=True)
 
         # ---- 收益矩阵 / 压减电量矩阵 ----
         st.subheader("3. 收益与压减电量矩阵")
@@ -137,13 +137,13 @@ if uploaded is not None:
             pivot_rev = df_sum.pivot_table(
                 index="实际场站", columns="场景", values="净收益影响元", aggfunc="sum"
             )
-            st.dataframe(pivot_rev, use_container_width=True)
+            st.dataframe(pivot_rev, width="stretch")
         with c2:
             st.markdown("**压减电量（MWh）**")
             pivot_ene = df_sum.pivot_table(
                 index="实际场站", columns="场景", values="压减电量MWh", aggfunc="sum"
             )
-            st.dataframe(pivot_ene, use_container_width=True)
+            st.dataframe(pivot_ene, width="stretch")
 
         # ---- 分组柱状图 ----
         st.markdown("**各场站 × 场景 净收益影响 / 压减电量**")
@@ -160,10 +160,10 @@ if uploaded is not None:
         tc1, tc2 = st.columns(2)
         with tc1:
             st.markdown("**触发事件**")
-            st.dataframe(df_ev, use_container_width=True, hide_index=True)
+            st.dataframe(df_ev, width="stretch", hide_index=True)
         with tc2:
             st.markdown("**恢复事件**")
-            st.dataframe(df_rec, use_container_width=True, hide_index=True)
+            st.dataframe(df_rec, width="stretch", hide_index=True)
 
         # ---- 时序图 ----
         st.subheader("5. 单场站单场景时序")
@@ -228,9 +228,9 @@ if uploaded is not None:
                 rc_sub = df_rec[(df_rec["实际场站"] == stn_sel) & (df_rec["场景"] == sc_sel)]
                 e1, e2 = st.columns(2)
                 with e1:
-                    st.dataframe(ev_sub, use_container_width=True, hide_index=True, height=220)
+                    st.dataframe(ev_sub, width="stretch", hide_index=True, height=220)
                 with e2:
-                    st.dataframe(rc_sub, use_container_width=True, hide_index=True, height=220)
+                    st.dataframe(rc_sub, width="stretch", hide_index=True, height=220)
             else:
                 st.info("该组合没有明细数据。")
 
