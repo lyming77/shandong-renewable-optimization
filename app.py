@@ -13,8 +13,29 @@ import streamlit as st
 
 from model import analyze
 
-st.set_page_config(page_title="新能源发电能力优化影响分析", layout="wide")
+st.set_page_config(
+    page_title="新能源发电能力优化影响分析",
+    page_icon="⚡",
+    layout="wide",
+    menu_items={
+        "Get help": None,
+        "Report a bug": None,
+        "About": "山东电网新能源发电能力优化 —— 场站影响分析工具",
+    },
+)
 st.title("山东电网新能源发电能力优化 —— 场站影响分析")
+
+# 隐藏 Streamlit 自带的英文工具栏(Deploy/⋮菜单)与页脚，让界面保持中文
+st.markdown(
+    """
+    <style>
+    [data-testid="stToolbar"] { visibility: hidden; }
+    [data-testid="stDecoration"] { visibility: hidden; }
+    footer { visibility: hidden; }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 st.caption(
     "上传与样表同结构的文件（每个场站一个 Sheet，15 分钟点，"
