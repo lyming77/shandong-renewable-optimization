@@ -34,12 +34,17 @@ def _template_bytes():
 # ---------------- 样表下载（始终可用） ----------------
 with st.expander("📥 下载数据采集样表", expanded=False):
     st.caption("按样表收集数据后上传即可。样表第一个 Sheet 为填写说明，其余每个场站一个 Sheet，时间轴已按整月 15 分钟预填。")
-    st.download_button(
-        "下载 数据采集样表.xlsx",
-        data=_template_bytes(),
-        file_name="数据采集样表.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    )
+    try:
+        tdata = _template_bytes()
+    except Exception as e:
+        st.warning(f"样表生成失败：{e}")
+    else:
+        st.download_button(
+            "下载 数据采集样表.xlsx",
+            data=tdata,
+            file_name="数据采集样表.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
 
 # ---------------- 数据上传 ----------------
 uploaded = st.file_uploader("上传测算数据 xlsx", type=["xlsx"])
