@@ -281,7 +281,7 @@ def simulate(d, rated, sc, delay=DELAY):
     cut_energy_pos = float(np.sum(cut_energy_t[pos]))   # 正价时段压减电量
     cut_energy_neg = float(np.sum(cut_energy_t[neg]))   # 负价时段压减电量
     rev_loss_pos = float(np.sum(rev_t[pos]))            # 正价少赚(损失, 元)
-    rev_save_neg = float(-np.sum(rev_t[neg]))           # 负价少亏(避免支出, 元, 正值)
+    rev_save_neg = float(-np.sum(rev_t[neg]) + 0.0)     # 负价少亏(避免支出, 元, 正值; +0.0 归一化 -0.0)
     net_rev = rev_loss_pos - rev_save_neg               # 净收益影响(元): 正=净少赚, 负=净少亏
 
     return {
@@ -373,6 +373,8 @@ def run_analysis(source=DATA_PATH, capacities=None):
                 a = float(actual_arr[t])
                 adj = sched[t] > 0
                 cut = float(np.maximum(0.0, a - opt_plan[t])) if adj else 0.0
+                price_t = float(d["price"][t])
+                price_ok = not np.isnan(price_t)
                 rec = {
                     "场站": sheet, "实际场站": real_name, "场景": sc_id,
                     "时间": d["ts"][t],
@@ -386,8 +388,8 @@ def run_analysis(source=DATA_PATH, capacities=None):
                     "之前实际出力MW": round(a, 3),
                     "压减后实际出力MW": round(float(new_actual[t]), 3),
                     "压减量MW": round(cut, 3),
-                    "实时电价元/MWh": round(float(d["price"][t]), 2),
-                    "收益影响元": round(cut * DT_HOUR * float(d["price"][t]), 2),
+                    "实时电价元/MWh": round(price_t, 2) if price_ok else None,
+                    "收益影响元": round(cut * DT_HOUR * price_t, 2) if price_ok else None,
                     "偏差量比例%": round(float(dev[t]) * 100, 2),
                     "连续两周期平均偏差比例%": round(float(avg_dev[t]) * 100, 2),
                 }
